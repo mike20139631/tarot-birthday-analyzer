@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<!-- 資料來源參考 https://ooodesignart.pixnet.net/blog/post/61742056 -->
+<!-- 圖片來源 https://www.sacred-texts.com/tarot/xr/index.htm -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>塔羅牌生日數字分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tarot-card {
+            transition: transform 0.3s ease;
+        }
+
+        .tarot-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .result-section {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center text-purple-800 mb-6">⸝⋆ 塔羅牌生日數字分析 ⋆⸜</h1>
+        <p class="text-center text-gray-600 mb-8">透過您的出生日期，分析您的本性數字、個性數字和靈魂數字，以及對應的塔羅牌意義</p>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-purple-700">請輸入您的出生日期</h2>
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <div class="flex-1">
+                    <label class="block text-gray-700 mb-2" for="birthYear">出生年份</label>
+                    <input type="number" id="birthYear" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="例如：1990" min="1900" max="2025">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-gray-700 mb-2" for="birthMonth">出生月份</label>
+                    <select id="birthMonth" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="">請選擇</option>
+                        <option value="1">1月</option>
+                        <option value="2">2月</option>
+                        <option value="3">3月</option>
+                        <option value="4">4月</option>
+                        <option value="5">5月</option>
+                        <option value="6">6月</option>
+                        <option value="7">7月</option>
+                        <option value="8">8月</option>
+                        <option value="9">9月</option>
+                        <option value="10">10月</option>
+                        <option value="11">11月</option>
+                        <option value="12">12月</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-gray-700 mb-2" for="birthDay">出生日</label>
+                    <select id="birthDay" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="">請選擇</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <h2 class="text-xl font-semibold mb-4 text-purple-700">流年運勢分析</h2>
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="flex-1">
+                        <label class="block text-gray-700 mb-2" for="yearSelect">選擇流年</label>
+                        <select id="yearSelect" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="">請選擇</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button id="calculateBtn" class="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition duration-300 mt-4">開始分析</button>
+        </div>
+
+        <!-- 結果區域 -->
+        <div id="resultSection" class="result-section bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-center text-purple-800 mb-6">您的塔羅牌數字分析結果</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- 本性數字 -->
+                <div id="natureCard" class="tarot-card bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg p-4 shadow-md">
+                    <h3 class="text-lg font-semibold text-purple-800 mb-2">本性數字 (50%)</h3>
+                    <div class="text-center mb-3">
+                        <span id="natureNumber" class="text-3xl font-bold text-purple-700"></span>
+                    </div>
+                    <div class="text-center mb-3">
+                        <span id="natureTarot" class="text-xl font-medium text-purple-600"></span>
+                    </div>
+                </div>
+
+                <!-- 個性數字 -->
+                <div id="personalityCard" class="tarot-card bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg p-4 shadow-md">
+                    <h3 class="text-lg font-semibold text-blue-800 mb-2">個性數字 (25%)</h3>
+                    <div class="text-center mb-3">
+                        <span id="personalityNumber" class="text-3xl font-bold text-blue-700"></span>
+                    </div>
+                    <div class="text-center mb-3">
+                        <span id="personalityTarot" class="text-xl font-medium text-blue-600"></span>
+                    </div>
+                    <p class="text-sm text-gray-600 italic">外在形象，其他人如何看待你</p>
+                </div>
+
+                <!-- 靈魂數字 -->
+                <div id="soulCard" class="tarot-card bg-gradient-to-br from-pink-100 to-pink-200 rounded-lg p-4 shadow-md">
+                    <h3 class="text-lg font-semibold text-pink-800 mb-2">靈魂數字 (25%)</h3>
+                    <div class="text-center mb-3">
+                        <span id="soulNumber" class="text-3xl font-bold text-pink-700"></span>
+                    </div>
+                    <div class="text-center mb-3">
+                        <span id="soulTarot" class="text-xl font-medium text-pink-600"></span>
+                    </div>
+                    <p class="text-sm text-gray-600 italic">真正的內在，你內心深處</p>
+                </div>
+            </div>
+
+            <!-- 塔羅牌詳細解釋 -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-purple-800 mb-4">塔羅牌詳細解釋</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 本性塔羅牌 -->
+                    <div class="bg-white rounded-lg p-4 shadow border border-purple-200">
+                        <h4 class="font-semibold text-purple-700 mb-2">本性塔羅牌：<span id="natureTarotTitle"></span></h4>
+                        <div class="mb-3">
+                            <p class="text-sm font-medium text-gray-700 mb-1">正面特質：</p>
+                            <p id="naturePositive" class="text-sm text-gray-600"></p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="text-sm font-medium text-gray-700 mb-1">負面特質：</p>
+                            <p id="natureNegative" class="text-sm text-gray-600"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-1">身體注意：</p>
+                            <p id="natureHealth" class="text-sm text-gray-600"></p>
+                        </div>
+                    </div>
+
+                    <!-- 個性塔羅牌 -->
+                    <div class="bg-white rounded-lg p-4 shadow border border-blue-200">
+                        <h4 class="font-semibold text-blue-700 mb-2">個性塔羅牌：<span id="personalityTarotTitle"></span></h4>
+                        <div class="mb-3">
+                            <p class="text-sm font-medium text-gray-700 mb-1">正面特質：</p>
+                            <p id="personalityPositive" class="text-sm text-gray-600"></p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="text-sm font-medium text-gray-700 mb-1">負面特質：</p>
+                            <p id="personalityNegative" class="text-sm text-gray-600"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-1">身體注意：</p>
+                            <p id="personalityHealth" class="text-sm text-gray-600"></p>
+                        </div>
+                    </div>
+
+                    <!-- 靈魂塔羅牌 -->
+                    <div class="bg-white rounded-lg p-4 shadow border border-pink-200">
+                        <h4 class="font-semibold text-pink-700 mb-2">靈魂塔羅牌：<span id="soulTarotTitle"></span></h4>
+                        <div class="mb-3">
+                            <p class="text-sm font-medium text-gray-700 mb-1">正面特質：</p>
+                            <p id="soulPositive" class="text-sm text-gray-600"></p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="text-sm font-medium text-gray-700 mb-1">負面特質：</p>
+                            <p id="soulNegative" class="text-sm text-gray-600"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-1">身體注意：</p>
+                            <p id="soulHealth" class="text-sm text-gray-600"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI分析 -->
+            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-6 shadow-md mb-8">
+                <h3 class="text-xl font-semibold text-indigo-800 mb-4">AI 綜合分析</h3>
+                <p id="aiAnalysis" class="text-gray-700 leading-relaxed"></p>
+            </div>
+
+            <!-- 流年運勢 -->
+            <div id="yearlyFortune" class="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg p-6 shadow-md">
+                <h3 class="text-xl font-semibold text-amber-800 mb-4">流年運勢分析</h3>
+                <div class="mb-4">
+                    <p class="font-medium text-amber-700 mb-2">選擇年份：<span id="selectedYear" class="font-bold"></span></p>
+                    <p class="font-medium text-amber-700 mb-2">流年數字：<span id="yearlyNumber" class="font-bold"></span></p>
+                    <p class="font-medium text-amber-700 mb-2">對應塔羅牌：<span id="yearlyTarot" class="font-bold"></span></p>
+                </div>
+                <div class="mb-4">
+                    <p class="font-medium text-gray-700 mb-1">流年運勢：</p>
+                    <p id="yearlyFortuneMeaning" class="text-gray-600"></p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-amber-200">
+                    <h4 class="font-semibold text-amber-700 mb-2">AI 流年運勢分析</h4>
+                    <p id="yearlyAiAnalysis" class="text-gray-700 leading-relaxed"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 塔羅牌數據
+            const tarotData = {
+                0: {
+                    name: "愚者",
+                    englishName: "The Fool",
+                    positive: "純樸憨厚耿直，誠懇踏實，相信人本善",
+                    negative: "容易相信別人，常常被騙，耳根子軟，容易被說服",
+                    health: "頭、小腿、神經",
+                    yearly: "摸不著頭緒，衝忙徬徨的時期 (建議多聽別人的建議)"
+                },
+                1: {
+                    name: "魔術師",
+                    englishName: "The Magician",
+                    positive: "喜歡變化，活潑外向，反應快、聰明靈巧，行動力，懂得展現自己",
+                    negative: "情緒波動大，易善變，以貌取人，流於外在，疏於內在修持，建議需多充實自己",
+                    health: "呼吸、咽喉、胸腔",
+                    yearly: "生活充滿各種可能性，但容易失去愛與本心，建議充實內在"
+                },
+                2: {
+                    name: "女祭司/女教宗",
+                    englishName: "The High Priestess",
+                    positive: "氣質脫俗，重精神生活，有智慧，有靈性(鬼神方面)，注重精神層面，很聰明，這張牌的男性會有女性特質",
+                    negative: "完美主義，脆弱，容易想太多導致憂鬱、想太多、做較少，與世隔絕、憤世嫉俗，淡泊名利",
+                    health: "內分泌、經期、生殖器、婦科",
+                    yearly: "面對內在我的時期，常常不被認可 (建議放大自己，包容他人)"
+                },
+                3: {
+                    name: "女皇/皇后",
+                    englishName: "The Empress",
+                    positive: "有群眾魅力，象徵身份地位與富貴，心胸寬大，帶財富權勢，主管階級多，和此女者為伴侶，男者會較圓融",
+                    negative: "征服欲強，易揮霍感情和金錢，容易自戀",
+                    health: "腎、排泄、女性生殖器",
+                    yearly: "春風得意，桃花金錢開滿，卻容易失去人心 (建議謙虛自省，學習理財)"
+                },
+                4: {
+                    name: "皇帝/國王",
+                    englishName: "The Emperor",
+                    positive: "行事果決，有領導才能，象徵身份地位與富貴，霸氣，絕對領導者，對事不對人，越活越值錢",
+                    negative: "一意孤行，不易放下身段、面子薄放不下身段，自尊強，須多多讓他",
+                    health: "男性生殖器、心血管、心臟",
+                    yearly: "權威顯赫，事業有成，但容易獨斷獨行 (建議多聽取他人意見)"
+                },
+                5: {
+                    name: "教皇/男教宗",
+                    englishName: "The Hierophant",
+                    positive: "富有謀略及品味，氣質不凡，注重道德，男權主義、愛家、重情，自愛",
+                    negative: "愛說教，愛大講道理，囉唆，保守，厭倦世俗的競爭，容易有悲觀情緒",
+                    health: "頸、咽喉、消化系統",
+                    yearly: "修心的時期，這階段你謹慎小心，太過理性，建議多多釋放自己的內在感性"
+                },
+                6: {
+                    name: "戀人/情人",
+                    englishName: "The Lovers",
+                    positive: "溫柔體貼，善解人意，桃花旺，重愛情，心思細膩，漂亮，保母可請這型",
+                    negative: "容易心軟，易為愛著迷陷入情網，感情用事、虛浮不定，脆弱，輕浮，容易為愛迷惑、傷感情、嚴重易殉情",
+                    health: "肩頸、神經、筋絡",
+                    yearly: "感性爆發，桃花開好開滿，爛桃花也是，為情所憂，建議理性、成熟一點"
+                },
+                7: {
+                    name: "戰車",
+                    englishName: "The Chariot",
+                    positive: "充滿了戰意衝勁，魄力及膽識，有勇有膽",
+                    negative: "率性而為，情緒強烈暴躁，衝動、無謀無策，遇人不淑就完蛋，對朋友較好，親人較差",
+                    health: "胸、腹部、心",
+                    yearly: "敢愛敢恨、敢做敢當的時期、建議做好通盤規劃，三思後行"
+                },
+                8: {
+                    name: "力量/堅強",
+                    englishName: "Strength",
+                    positive: "凡事投入，任勞任怨，成熟穩重，感情最豐富，經驗豐富、好好先生、好好小姐",
+                    negative: "容易為別人而活，把自己搞得很累、自虐壓抑，過於付出，個性壓抑，努力十分得一分，勸對自己好一點",
+                    health: "腰、下腹部、排水系統",
+                    yearly: "穩健成長、耐心耐勞的時期，容易把自己累垮，建議多為自己著想，為自己而活"
+                },
+                9: {
+                    name: "隱士",
+                    englishName: "The Hermit",
+                    positive: "充滿靈性、有宗教緣，有智慧，深謀遠慮，重內在",
+                    negative: "不容易被理解，思想過於複雜困擾自己，優柔寡斷，個性壓抑，再三猶豫，厭世，較憂鬱、容易想不開、加入宗教為佳",
+                    health: "肝、膽、胃、腸",
+                    yearly: "想要做自己，卻難被認同的時期，建議遵循本心的同時，多聽人家的意見"
+                },
+                10: {
+                    name: "命運之輪",
+                    englishName: "The Wheel of Fortune",
+                    positive: "天之驕子，命帶富貴，貴人自來，好命好運，有助力、有錢，努力一分得十分",
+                    negative: "得來太容易，思想簡單，情緒淺薄，物質主義者，不惜福，喜歡享受，自私自利",
+                    health: "肝、四肢、排毒、皮膚",
+                    yearly: "各面項開到滿的時期，愛情、財富、健康....，建議把握時機，飲水思源"
+                },
+                11: {
+                    name: "正義",
+                    englishName: "Justice",
+                    positive: "個性豪邁，情義兼備，嫉惡如仇，以理服人，擇善固執，行動派",
+                    negative: "思想直接，不夠圓融且主觀，想太多而做不了，光說不練，沒說服力",
+                    health: "心血管、脊椎",
+                    yearly: "充滿大情懷，感性豐沛的時期，建議客觀一點，主管意識不要太強"
+                },
+                12: {
+                    name: "倒吊人/懸吊者",
+                    englishName: "The Hanged Man",
+                    positive: "與眾不同，舉一及三，富創意、藝術，適合創業，創業藝術型 (新興、科技、創意方面產業，多自己當老闆)",
+                    negative: "個性兩極，叛逆思想較強，批判雄辯、雜念多，不易聽勸，逆向超作",
+                    health: "血液循環、慢性病",
+                    yearly: "富有創造力、主觀意識爆發的時期 (建議圓融一點，走出舒適圈)"
+                },
+                13: {
+                    name: "死神/死亡",
+                    englishName: "Death",
+                    positive: "直覺力強，洞悉生命與問題，看透生死，思想獨特，大智慧，夜行性動物",
+                    negative: "命運波折多，思考過深不切實際，孤獨，好壞一念之間，命運坎坷，思想超然，跟樂觀的人(如數字20)的人在一起為佳",
+                    health: "中樞神經、排泄系統、泌尿、內分泌、甲狀腺、子宮",
+                    yearly: "思想超然的時期，卻容易畫地自限 (建議多跟熱情樂觀的人在一起)"
+                },
+                14: {
+                    name: "節制",
+                    englishName: "Temperance",
+                    positive: "保守自制，重情自愛，三思後行、有所為有所不為、有自己的底線",
+                    negative: "理想主義，安於現狀，放不開，停滯安逸不前，對事固執、想很多，不願面對現實、缺乏上進心",
+                    health: "下肢、肝火、心血管、下半身循環",
+                    yearly: "保守、平穩的時期，容易困在原地走不出去，建議積極主動地學習、展現自己"
+                },
+                15: {
+                    name: "惡魔",
+                    englishName: "The Devil",
+                    positive: "人際關係好，充滿魅力，號召力強，善言，善藝術，晚上精力旺盛，優越感，愛講話，有偏財",
+                    negative: "夜行性動物，慾望強烈，不滿足，欲求不滿、棄道德、玩弄人性、易結交壞朋友",
+                    health: "骨質、皮膚",
+                    yearly: "偏財運強、人際關係好，容易失本心，建議行事要有原則，不可以濫情、利用"
+                },
+                16: {
+                    name: "高塔",
+                    englishName: "The Tower",
+                    positive: "聰明伶俐，人緣極佳，個性獨立自主，黑白分明，漂亮引人靠近，但卻複雜混亂，易吸引三道九流",
+                    negative: "容易受外力傷害和干擾，生命逆多於順，可以多做善事和捐獻，外力會小點",
+                    health: "意外、運動傷害、男生殖器、發炎、外傷",
+                    yearly: "複雜充滿波折的一年，建議篩選人際關係、多做善事"
+                },
+                17: {
+                    name: "星星",
+                    englishName: "The Star",
+                    positive: "領悟力很高，有慧根，聰明，有靈性，沉默寡言，不愛表現",
+                    negative: "心思飄浮，心胸狹隘，害怕挫折，太過含蓄，沒有耐心，三分鐘熱度、持續力不強",
+                    health: "眼睛、尾椎、小腿、腳",
+                    yearly: "開悟、面對內心自我的時期，卻容易膽小、怕人，建議多表現自己，多與人交流"
+                },
+                18: {
+                    name: "月亮",
+                    englishName: "The Moon",
+                    positive: "浪漫溫柔、重感情、充滿幻想與創造力",
+                    negative: "為愛而活，愛幻想，易感情用事，愛哭，不切實際，太過風花雪月",
+                    health: "眼、鼻、內分泌、子宮、水循環系統",
+                    yearly: "情感豐沛、心思卻容易受創的時期 (建議理性一點，不要怪力亂神)"
+                },
+                19: {
+                    name: "太陽",
+                    englishName: "The Sun",
+                    positive: "熱情博愛，溫暖富有愛情，快樂而有人緣、根本愛神本人，有領導魅力，有人緣，愛心主義",
+                    negative: "易為別人著想忘了自己、熱情過度亦強勢、野心太大而固執",
+                    health: "心臟、心血管、免疫系統",
+                    yearly: "陽光浪漫、積極向上的時期。 (建議照耀別人的同時，也要照顧自己的內心)"
+                },
+                20: {
+                    name: "審判/上帝",
+                    englishName: "Judgement",
+                    positive: "心思細密，企圖心強，霸氣十足 (比皇帝強)",
+                    negative: "非常完美主義，自我優越感強，自我感覺良好，人心難測，斤斤計較，搞得自己很累，主觀意識強，對親人較好，朋友較差",
+                    health: "生殖器官",
+                    yearly: "適合發展事業、衝刺人生的時期、建議兼顧人情，不要太過苛刻"
+                },
+                21: {
+                    name: "世界",
+                    englishName: "The World",
+                    positive: "自由豁達，不拘束，心胸寬大，包容，樂觀，什麼都能跟你講，什麼事都可以跟他講",
+                    negative: "太隨心所欲，喜歡獨行天涯，不滿足現狀",
+                    health: "骨質、皮膚",
+                    yearly: "心胸開放、大量訊息湧入、追逐自由的時期、建議實際一點，要想到別人"
+                }
+            };
+
+            // 初始化日期選擇器
+            populateDays();
+            populateYearSelect();
+
+            // 當月份改變時，更新日期選項
+            document.getElementById('birthMonth').addEventListener('change', populateDays);
+
+            // 計算按鈕點擊事件
+            document.getElementById('calculateBtn').addEventListener('click', calculateTarot);
+
+            // 填充日期選擇器
+            function populateDays() {
+                const month = parseInt(document.getElementById('birthMonth').value);
+                const daySelect = document.getElementById('birthDay');
+
+                // 清空現有選項
+                daySelect.innerHTML = '<option value="">請選擇</option>';
+
+                if (!month) return;
+
+                // 根據月份確定天數
+                let daysInMonth;
+                if ([4, 6, 9, 11].includes(month)) {
+                    daysInMonth = 30;
+                } else if (month === 2) {
+                    daysInMonth = 29; // 簡化處理，包含閏年
+                } else {
+                    daysInMonth = 31;
+                }
+
+                // 添加日期選項
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `${i}日`;
+                    daySelect.appendChild(option);
+                }
+            }
+
+            // 填充年份選擇器（流年分析）
+            function populateYearSelect() {
+                const yearSelect = document.getElementById('yearSelect');
+                const currentYear = new Date().getFullYear();
+
+                // 清空現有選項
+                yearSelect.innerHTML = '<option value="">請選擇</option>';
+
+                // 添加年份選項（今年-1到今年+5）
+                for (let i = currentYear - 1; i <= currentYear + 5; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `${i}年`;
+                    yearSelect.appendChild(option);
+                }
+            }
+
+            // 計算塔羅牌數字
+            function calculateTarot() {
+                const birthYear = parseInt(document.getElementById('birthYear').value);
+                const birthMonth = parseInt(document.getElementById('birthMonth').value);
+                const birthDay = parseInt(document.getElementById('birthDay').value);
+                const selectedYear = document.getElementById('yearSelect').value;
+
+                // 驗證輸入
+                if (!birthYear || !birthMonth || !birthDay) {
+                    alert('請填寫完整的出生日期');
+                    return;
+                }
+
+                if (birthYear < 1900 || birthYear > 2025) {
+                    alert('請輸入有效的出生年份（1900-2025）');
+                    return;
+                }
+
+                // 計算本性數字
+                const yearTens = Math.floor((birthYear % 100) / 10);
+                const yearOnes = birthYear % 10;
+                const natureNumber = yearTens + yearOnes;
+
+                // 計算個性和靈魂數字
+                const sum = birthYear + birthMonth + birthDay;
+                let personalityNumber, soulNumber, creativityNumber;
+
+                // 將總和的每一位數字相加
+                const sumDigits = sum.toString().split('').reduce((acc, digit) => acc + parseInt(digit), 0);
+
+                // 根據規則確定個性和靈魂數字
+                if (sumDigits < 10) {
+                    // 若得個位數，則該數為個性數字與靈魂數字
+                    personalityNumber = sumDigits;
+                    soulNumber = sumDigits;
+                } else if (sumDigits === 19) {
+                    // 若得19數字，則個性數字是19，靈魂數字是1
+                    personalityNumber = 19;
+                    soulNumber = 1;
+                    creativityNumber = 10;
+                } else if (sumDigits >= 10 && sumDigits <= 21) {
+                    // 若得10\~21(19除外)數字，則該數為個性數字，兩碼再相加得出靈魂數字
+                    personalityNumber = sumDigits;
+                    soulNumber = Math.floor(sumDigits / 10) + (sumDigits % 10);
+                } else {
+                    // 若得22以上的數字，個性數字=XX-22，靈魂數字=X+X
+                    personalityNumber = sumDigits - 22;
+                    soulNumber = Math.floor(sumDigits / 10) + (sumDigits % 10);
+                }
+
+                // 確保數字在有效範圍內
+                let natureNumber_normalize = normalizeNumber(natureNumber);
+                personalityNumber = normalizeNumber(personalityNumber);
+                soulNumber = normalizeNumber(soulNumber);
+
+                // 顯示結果
+                displayResults(natureNumber_normalize, personalityNumber, soulNumber, creativityNumber);
+
+                // 如果選擇了流年，計算流年運勢
+                if (selectedYear) {
+                    calculateYearlyFortune(parseInt(selectedYear), birthMonth, birthDay);
+                }
+
+                // 顯示結果區域
+                document.getElementById('resultSection').style.display = 'block';
+
+                // 滾動到結果區域
+                document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+            }
+
+            // 將數字標準化到0-21範圍
+            function normalizeNumber(num) {
+                if (num > 21) {
+                    return num % 22;
+                }
+                return num;
+            }
+
+            // 顯示計算結果
+            function displayResults(natureNumber, personalityNumber, soulNumber, creativityNumber) {
+                // 本性數字
+                document.getElementById('natureNumber').textContent = natureNumber;
+                document.getElementById('natureTarot').textContent = tarotData[natureNumber].name;
+                document.getElementById('natureTarotTitle').textContent = tarotData[natureNumber].name;
+                document.getElementById('naturePositive').textContent = tarotData[natureNumber].positive;
+                document.getElementById('natureNegative').textContent = tarotData[natureNumber].negative;
+                document.getElementById('natureHealth').textContent = tarotData[natureNumber].health;
+
+                // 個性數字
+                document.getElementById('personalityNumber').textContent = personalityNumber;
+                document.getElementById('personalityTarot').textContent = tarotData[personalityNumber].name;
+                document.getElementById('personalityTarotTitle').textContent = tarotData[personalityNumber].name;
+                document.getElementById('personalityPositive').textContent = tarotData[personalityNumber].positive;
+                document.getElementById('personalityNegative').textContent = tarotData[personalityNumber].negative;
+                document.getElementById('personalityHealth').textContent = tarotData[personalityNumber].health;
+
+                // 靈魂數字
+                document.getElementById('soulNumber').textContent = soulNumber;
+                document.getElementById('soulTarot').textContent = tarotData[soulNumber].name;
+                document.getElementById('soulTarotTitle').textContent = tarotData[soulNumber].name;
+                document.getElementById('soulPositive').textContent = tarotData[soulNumber].positive;
+                document.getElementById('soulNegative').textContent = tarotData[soulNumber].negative;
+                document.getElementById('soulHealth').textContent = tarotData[soulNumber].health;
+
+                // AI分析
+                generateAIAnalysis(natureNumber, personalityNumber, soulNumber, creativityNumber);
+            }
+
+            // 計算流年運勢
+            function calculateYearlyFortune(year, birthMonth, birthDay) {
+                // 計算流年數字
+                const yearSum = year + birthMonth + birthDay;
+
+                // 將總和的每一位數字相加
+                let yearlyNumber = yearSum.toString().split('').reduce((acc, digit) => acc + parseInt(digit), 0);
+
+                // 若得23以上數字，則兩位數字再相加
+                if (yearlyNumber >= 23) {
+                    yearlyNumber = Math.floor(yearlyNumber / 10) + (yearlyNumber % 10);
+                }
+
+                // 確保數字在有效範圍內
+                yearlyNumber = normalizeNumber(yearlyNumber);
+
+                // 顯示流年運勢
+                document.getElementById('selectedYear').textContent = year;
+                document.getElementById('yearlyNumber').textContent = yearlyNumber;
+                document.getElementById('yearlyTarot').textContent = tarotData[yearlyNumber].name;
+                document.getElementById('yearlyFortuneMeaning').textContent = tarotData[yearlyNumber].yearly;
+
+                // 生成流年AI分析
+                generateYearlyAIAnalysis(yearlyNumber, year);
+            }
+
+            // 生成AI分析
+            function generateAIAnalysis(natureNumber, personalityNumber, soulNumber, creativityNumber) {
+                const natureCard = tarotData[natureNumber];
+                const personalityCard = tarotData[personalityNumber];
+                const soulCard = tarotData[soulNumber];
+
+                let analysis = `根據您的生日數字分析，您的本性數字是${natureNumber}（${natureCard.name}），個性數字是${personalityNumber}（${personalityCard.name}），靈魂數字是${soulNumber}（${soulCard.name}）。`;
+
+                // 本性分析
+                analysis += `\n\n您的本性（佔50%）反映了您的核心特質，作為${natureCard.name}，您${natureCard.positive.split('，')[0]}`;
+
+                // 個性與靈魂的關係分析
+                if (personalityNumber === soulNumber) {
+                    analysis += `\n\n您的個性數字和靈魂數字相同，這表示您的外在表現與內在本質高度一致，您是一個真實且透明的人，不太需要在社交場合戴上面具。作為${personalityCard.name}，您在人際互動中展現出${personalityCard.positive.split('，')[0]}的特質，這也正是您內心深處的真實寫照。`;
+                } else {
+                    analysis += `\n\n您的外在個性是${personalityCard.name}，在人際互動中，人們會感受到您${personalityCard.positive.split('，')[0]}的一面。然而，您的內在靈魂是${soulCard.name}，在私下或親密關係中，您會展現出更多${soulCard.positive.split('，')[0]}的特質。`;
+
+                    // 分析潛在的內外衝突
+                    analysis += `\n\n這種內外差異可能有時會讓您感到某種程度的內在張力，特別是當您需要在社交場合中維持${personalityCard.name}的形象，而內心深處的${soulCard.name}特質卻有不同的需求時。`;
+                }
+
+                // 創造力分析（如果有）
+                if (creativityNumber) {
+                    const creativityCard = tarotData[creativityNumber];
+                    analysis += `\n\n特別值得注意的是，您擁有創造力數字${creativityNumber}（${creativityCard.name}），這表示您具有絕佳的創意天賦。您可能在藝術、設計、寫作或任何需要創新思維的領域有出色的表現。`;
+                }
+
+                // 健康建議
+                analysis += `\n\n在健康方面，您可能需要特別注意${natureCard.health}、${personalityCard.health}和${soulCard.health}等部位。建議定期檢查並保持良好的生活習慣。`;
+
+                // 綜合建議
+                analysis += `\n\n綜合來看，您是一個${natureCard.positive.split('，')[0]}的人，在社交場合展現${personalityCard.positive.split('，')[0]}的特質，內心深處則是${soulCard.positive.split('，')[0]}的本質。建議您充分發揮這些優勢，同時注意避免${natureCard.negative.split('，')[0]}和${personalityCard.negative.split('，')[0]}的傾向。`;
+
+                document.getElementById('aiAnalysis').innerHTML = analysis.replace(/\n/g, '<br>');
+            }
+
+            // 生成流年AI分析
+            function generateYearlyAIAnalysis(yearlyNumber, year) {
+                const yearlyCard = tarotData[yearlyNumber];
+
+                let analysis = `${year}年對您來說是${yearlyCard.name}的一年。${yearlyCard.yearly}`;
+
+                // 根據不同的塔羅牌提供具體建議
+                switch(yearlyNumber) {
+                    case 0: // 愚者
+                        analysis += `\n\n這一年對您來說將充滿新的可能性和冒險。愚者代表新的開始、冒險和自由，您可能會有機會踏上新的旅程或開始全新的生活階段。建議您保持開放的心態，勇於嘗試新事物，但也要注意不要過於衝動。這是一個適合自我探索和個人成長的時期，不要害怕犯錯，因為每一次經歷都是寶貴的學習機會。`;
+                        break;
+                    case 1: // 魔術師
+                        analysis += `\n\n這將是一個充滿創造力和實現的年份。魔術師象徵著創造力、技能和實現能力，您可能會發現自己擁有將想法轉化為現實的能力。這是一個適合開始新項目、學習新技能或展示才能的時期。建議您相信自己的能力，充分利用手頭的資源，並保持專注和決心。記住，您擁有實現目標所需的一切工具。`;
+                        break;
+                    case 2: // 女祭司/女教宗
+                        analysis += `\n\n這一年對您來說是深度內省和直覺發展的時期。女祭司代表智慧、神秘和內在知識，您可能會發現自己更加關注精神層面的成長。建議您花時間獨處、冥想或學習新知識，傾聽內心的聲音。這也是一個適合研究、學習和深入探索的年份。不要急於做決定，讓事情自然發展，信任您的直覺指引。`;
+                        break;
+                    case 3: // 皇后
+                        analysis += `\n\n這將是一個豐收和創造力爆發的年份。皇后象徵著豐盛、創造力和滋養，您可能會在創意項目、人際關係或個人成長方面獲得豐碩成果。這也是一個適合關注健康、美麗和自我照顧的時期。建議您善用這段時間培養與自然的連結，享受生活的美好，同時也不要忘記關愛他人，分享您的豐盛。`;
+                        break;
+                    case 4: // 皇帝
+                        analysis += `\n\n這是一個建立秩序和權威的年份。皇帝代表權威、結構和領導力，您可能會在事業或個人生活中擔任領導角色，或需要建立更穩固的基礎。這是一個適合制定長期計劃、建立規則和結構的時期。建議您保持堅定和自信，但也要避免過於固執或專制。平衡權力和責任，將會帶來穩定和成功。`;
+                        break;
+                    case 5: // 教皇/男教宗
+                        analysis += `\n\n這一年對您來說是精神成長和傳統價值的時期。教皇象徵著精神指導、傳統和信仰，您可能會重新審視自己的信念系統或尋求更深層次的精神連結。這是一個適合學習、教導或分享知識的時期。建議您尊重傳統智慧，同時也保持開放的心態接受新的觀點。尋找能夠提供指導和支持的導師或社群。`;
+                        break;
+                    case 6: // 戀人/情人
+                        analysis += `\n\n這將是一個關於選擇和關係的重要年份。戀人牌象徵著選擇、和諧和愛，您可能會面臨重要的人生選擇，特別是在關係方面。這是一個適合深化現有關係或開始新關係的時期。建議您傾聽內心的聲音，做出真正符合自己價值觀的選擇。平衡理性和感性，尋找能夠帶來和諧與成長的連結。`;
+                        break;
+                    case 7: // 戰車
+                        analysis += `\n\n這是一個充滿決心和勝利的年份。戰車代表意志力、決心和克服障礙，您可能會面臨挑戰，但也擁有克服這些挑戰的力量。這是一個適合設定目標並堅定不移地追求的時期。建議您保持專注和自律，控制自己的情緒和衝動。記住，真正的勝利不僅是征服外在的障礙，也是掌控內在的衝突。`;
+                        break;
+                    case 8: // 力量/堅強
+                        analysis += `\n\n這一年對您來說是內在力量和勇氣的時期。力量牌象徵著內在力量、勇氣和耐心，您可能會發現自己能夠以溫和但堅定的方式面對挑戰。這是一個適合培養自信和自我控制的時期。建議您用愛和理解而非強制來解決問題，培養與自己內在野性的和諧關係。真正的力量來自於內心的平靜和自信。`;
+                        break;
+                    case 9: // 隱士
+                        analysis += `\n\n這將是一個內省和尋找智慧的年份。隱士代表獨處、內省和尋求真理，您可能會感到需要從喧囂的外界退隱，尋找內心的平靜和智慧。這是一個適合自我反思、學習和精神成長的時期。建議您珍惜獨處的時光，傾聽內心的聲音，尋找能夠照亮前方道路的內在光明。不要害怕孤獨，因為它常常是智慧的源泉。`;
+                        break;
+                    case 10: // 命運之輪
+                        analysis += `\n\n這是一個充滿變化和機遇的年份。命運之輪象徵著變化、循環和命運，您可能會經歷生活中的重大轉變或意外的機遇。這是一個適合接受變化並保持靈活的時期。建議您順應生活的自然流動，不要過度執著於控制結果。記住，每一個結束都是新開始的機會，保持樂觀和適應力將幫助您駕馭這一年的起伏。`;
+                        break;
+                    case 11: // 正義
+                        analysis += `\n\n這一年對您來說是平衡和公正的時期。正義牌象徵著平衡、公正和誠實，您可能會面臨需要做出公平決定的情況，或者經歷因果報應的效應。這是一個適合解決法律問題、尋求真相或恢復平衡的時期。建議您誠實面對自己和他人，權衡各種選擇的利弊，做出符合道德和公正的決定。記住，真正的正義始於內心的誠實。`;
+                        break;
+                    case 12: // 懸吊者
+                        analysis += `\n\n這將是一個暫停和新視角的年份。懸吊者代表犧牲、新視角和等待，您可能會感到生活中的某些方面處於暫停狀態，或需要做出某種犧牲。這是一個適合改變視角、放下執著和學習接受的時期。建議您利用這段時間重新評估您的目標和價值觀，尋找新的視角和解決方案。有時候，看似的停滯實際上是為了更大的突破做準備。`;
+                        break;
+                    case 13: // 死神
+                        analysis += `\n\n這是一個轉變和重生的年份。死神象徵著結束、轉變和重生，您可能會經歷生活中某個階段或關係的結束，為新的開始騰出空間。這是一個適合放下過去、接受變化和擁抱新開始的時期。建議您不要害怕結束和變化，因為它們是生命自然循環的一部分。記住，只有通過放下舊的，才能為新的創造空間。`;
+                        break;
+                    case 14: // 節制
+                        analysis += `\n\n這一年對您來說是平衡和和諧的時期。節制牌象徵著平衡、和諧和適度，您可能會發現自己在尋找生活各方面的平衡點。這是一個適合調和對立、融合不同元素和實踐適度的時期。建議您避免極端，尋找中庸之道，耐心地讓事情自然發展。通過結合看似對立的元素，您可以創造出更大的和諧和流動。`;
+                        break;
+                    case 15: // 惡魔
+                        analysis += `\n\n這將是一個面對束縛和誘惑的年份。惡魔代表束縛、誘惑和物質主義，您可能會面臨誘惑或發現自己被某種情況或關係所束縛。這是一個適合審視自己的依附和限制的時期。建議您誠實面對自己的陰影面，認識到是什麼在限制您的自由，並找到擺脫這些束縛的方法。記住，意識到束縛是獲得真正自由的第一步。`;
+                        break;
+                    case 16: // 高塔
+                        analysis += `\n\n這是一個突破和解放的年份。高塔象徵著突然的變化、啟示和解放，您可能會經歷生活中的突然轉變或舊有結構的崩塌。這是一個適合打破舊有模式、接受真相和重建的時期。建議您不要抗拒變化，即使它看起來具有破壞性，因為這些變化往往是為了清除不再服務於您的結構，為更真實和穩固的基礎創造空間。`;
+                        break;
+                    case 17: // 星星
+                        analysis += `\n\n這一年對您來說是希望和靈感的時期。星星牌象徵著希望、靈感和更新，您可能會在經歷挑戰後找到新的希望和方向。這是一個適合治癒、尋找靈感和追隨夢想的時期。建議您保持樂觀和開放的心態，相信宇宙的指引，同時也要腳踏實地地朝著您的夢想邁進。記住，即使在最黑暗的夜晚，星星也會為您照亮前方的道路。`;
+                        break;
+                    case 18: // 月亮
+                        analysis += `\n\n這將是一個面對幻想和恐懼的年份。月亮代表幻想、恐懼和潛意識，您可能會面臨混亂或不確定性，或者需要處理來自潛意識的訊息。這是一個適合探索夢境、直覺和創造力的時期。建議您不要害怕面對自己的陰影和恐懼，因為只有通過承認它們，您才能真正超越它們。信任您的直覺，但也要警惕自我欺騙。`;
+                        break;
+                    case 19: // 太陽
+                        analysis += `\n\n這是一個充滿喜悅和成功的年份。太陽象徵著喜悅、成功和活力，您可能會經歷生活中的高峰時刻，感受到成就和滿足。這是一個適合慶祝成功、表達自我和享受生活的時期。建議您擁抱這段充滿陽光的時光，分享您的光明和溫暖，同時也要記得感恩和謙卑。太陽的能量是豐富而慷慨的，它鼓勵您也以同樣的方式生活。`;
+                        break;
+                    case 20: // 審判
+                        analysis += `\n\n這一年對您來說是覺醒和重生的時期。審判牌象徵著覺醒、重生和召喚，您可能會經歷重大的覺醒或聽到內心深處的召喚。這是一個適合回應召喚、做出重大決定和開始新生活的時期。建議您傾聽內心的聲音，勇敢地回應生命的召喚，原諒過去的錯誤，並擁抱新的開始。記住，真正的重生來自於接受過去並超越它。`;
+                        break;
+                    case 21: // 世界
+                        analysis += `\n\n這將是一個完成和整合的年份。世界牌象徵著完成、整合和成就，您可能會看到過去努力的成果，感受到一種圓滿和成就感。這是一個適合慶祝成就、整合經驗和準備新旅程的時期。建議您認可並慶祝您的成就，同時也要保持開放的心態，準備迎接新的循環。世界牌代表一個循環的結束，但也暗示著新循環的開始。`;
+                        break;
+                    default:
+                        // analysis += `\n\n這一年對您來說將是充滿變化和機遇的時期。每張塔羅牌都帶有獨特的能量和訊息，建議您深入探索這張牌的含義，並思考它如何與您的生活產生共鳴。記住，塔羅牌提供的是指引和洞見，最終的選擇和行動仍在於您自己。保持開放的心態，接納生活中的各種可能性，這將幫助您在這一年中獲得最大的成長和收穫。`;
+                        analysis += `\n\n在這一年中，建議您充分理解並擁抱${yearlyCard.name}的能量。關注自己的直覺和內心聲音，同時也要保持理性思考。記住，塔羅牌的預測提供的是可能性和趨勢，最終您的選擇和行動才是決定命運的關鍵。`;
+                }
+
+                // switch (yearlyNumber) {
+                //     case 0: // 愚者
+                //         analysis += `\n\n這一年您可能會感到方向不明確，像是站在人生的十字路口。這是一個充滿可能性的時期，但也容易感到迷茫。建議您保持開放的心態，不要急於做出重大決定，多聽取他人的建議和經驗。同時，這也是一個適合自我探索和嘗試新事物的時期，不妨放下包袱，以初學者的心態面對生活。`;
+                //         break;
+                //     case 1: // 魔術師
+                //         analysis += `\n\n這一年您將充滿創造力和行動力，是實現想法和計劃的絕佳時機。您可能會發現自己有許多新點子和靈感，建議您善用這些能量，但同時也要注意不要過於分散注意力。記得在追求外在成就的同時，也要關注內在的成長和精神需求。嘗試每天花一些時間靜心冥想或反思，這將幫助您保持平衡。`;
+                //         break;
+                //     case 10: // 命運之輪
+                //         analysis += `\n\n這是一個充滿變化和機遇的年份，命運之輪象徵著生活的起伏循環。您可能會經歷一些意想不到的轉變，無論是好是壞，都要記住這些都是暫時的。建議您保持靈活的態度，準備好迎接和適應變化。同時，不要忘記感恩和回饋，因為您的好運往往來自於他人的幫助和支持。`;
+                //         break;
+                //     case 19: // 太陽
+                //         analysis += `\n\n這將是一個充滿陽光和積極能量的年份！太陽牌象徵著成功、喜悅和實現。您可能會在事業、人際關係或個人成長方面取得重大突破。這是一個展示自己才能和魅力的好時機，不要害怕站在聚光燈下。然而，也要記得在照亮他人的同時，不要忘記照顧自己的需求和情感健康。`;
+                //         break;
+                //     default:
+                //         analysis += `\n\n在這一年中，建議您充分理解並擁抱${yearlyCard.name}的能量。關注自己的直覺和內心聲音，同時也要保持理性思考。記住，塔羅牌的預測提供的是可能性和趨勢，最終您的選擇和行動才是決定命運的關鍵。`;
+                // }
+
+                analysis += `\n\n無論面臨什麼挑戰，記住：您擁有應對一切的內在力量。這一年將是您個人成長的重要階段，請以開放和積極的態度迎接每一天。`;
+
+                document.getElementById('yearlyAiAnalysis').innerHTML = analysis.replace(/\n/g, '<br>');
+            }
+
+        });
+    </script>
+</body>
+
+</html>
